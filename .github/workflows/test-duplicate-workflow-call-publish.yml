@@ -25,8 +25,11 @@ jobs:
     uses: ./.github/workflows/workflow-call-test.yml
   fake-build:
     name: Fake Build
-    if: github.event_name == 'release'
     needs: run-tests
+    if: |
+      always() &&
+      github.event_name == 'release' &&
+      needs(needs.run-tests.result == 'success' || needs.run-tests.result == 'skipped') &&
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
