@@ -1,7 +1,0 @@
-name: Workflow Test on PR
-
-on: [pull_request]
-
-jobs:
-  run-tests:
-    uses: ./.github/workflows/workflow-call-test.yml

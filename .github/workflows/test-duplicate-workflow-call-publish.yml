@@ -1,7 +1,10 @@
 name: Workflow Test on Publish
 on:
   release:
-    types: [published]
+    types:
+      - published
+  pull_request:
+
 jobs:
   pre_job:
     # continue-on-error: true # Uncomment once integration is finished
@@ -16,20 +19,24 @@ jobs:
           # All of these options are optional, so you can remove them if you are happy with the defaults
           concurrent_skipping: "never"
           do_not_skip: '["workflow_dispatch", "schedule"]'
-  test:
-    name: Run Tests
-    needs: pre_job
+  run-tests:
     if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Echo Hello World
-        run: echo "hello world!"
+    needs: pre_job
+    uses: ./.github/workflows/workflow-call-test.yml
   fake-build:
     name: Fake Build
-    needs: test
+    if: github.event_name == 'release'
+    needs: run-tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - name: Echo Fake Build
         run: echo "fake build!"
+  fake-publish:
+    name: Fake Build
+    needs: fake-build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Echo Fake Post Build
+        run: echo "fake post build!"
