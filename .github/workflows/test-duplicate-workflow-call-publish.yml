@@ -36,8 +36,12 @@ jobs:
       - name: Echo Fake Build
         run: echo "fake build!"
   fake-publish:
-    name: Fake Build
+    name: Fake Publish
     needs: fake-build
+    if: |
+      always() &&
+      (needs.fake-build.result == 'success') &&
+      github.event_name == 'release'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
